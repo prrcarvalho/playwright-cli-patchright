@@ -29,15 +29,25 @@ npm install --save-dev file:/path/to/playwright-cli-patchright
 npx --no-install playwright-cli-patched --help
 ```
 
-### Upgrading Patchright
+### Full upgrade
 
-From this fork checkout, upgrade the pinned Patchright runtime packages to npm latest:
+From this fork checkout, run a full fork upgrade (upstream + Patchright runtime):
 
 ```bash
 node playwright-cli.js upgrade
 ```
 
-Use `node playwright-cli.js upgrade --dry-run` to print the latest versions without changing package files.
+`upgrade` now merges Microsoft `playwright-cli` first (if possible), then updates `patchright` and
+`patchright-core` to npm latest.
+
+Use `node playwright-cli.js upgrade --dry-run` to print the upstream merge plan and package versions
+without changing package files.
+
+If you only want to upgrade Patchright packages without syncing upstream, run:
+
+```bash
+node playwright-cli.js upgrade --skip-upstream
+```
 
 ### Syncing Microsoft upstream
 

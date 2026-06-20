@@ -1,5 +1,10 @@
 const { execFileSync, spawnSync } = require('child_process');
 const path = require('path');
+const { runSyncUpstream, DEFAULT_UPSTREAM_URL } = require('./sync-upstream');
+
+const DEFAULT_UPSTREAM_OPTIONS = {
+  remoteUrl: DEFAULT_UPSTREAM_URL,
+};
 
 function runUpgrade(argv = [], options = {}) {
   const rootDir = options.rootDir || path.resolve(__dirname, '..');
@@ -9,6 +14,11 @@ function runUpgrade(argv = [], options = {}) {
   }
 
   const dryRun = argv.includes('--dry-run');
+  const skipUpstream = argv.includes('--skip-upstream');
+
+  if (!skipUpstream)
+    runSyncUpstream(upstreamArgv(argv), { ...DEFAULT_UPSTREAM_OPTIONS, rootDir });
+
   const patchrightVersion = latestNpmVersion('patchright');
   const patchrightCoreVersion = latestNpmVersion('patchright-core');
 
@@ -51,16 +61,34 @@ function printCommandSurface(rootDir) {
 function printHelp() {
   console.log(`playwright-cli-patched upgrade
 
-Upgrade this fork's Patchright runtime packages to npm latest.
+Run a full upgrade for the fork in one command.
+
+By default this command:
+  1) syncs upstream Microsoft Playwright CLI
+  2) updates 'patchright' and 'patchright-core' to npm latest
 
 Usage:
-  playwright-cli-patched upgrade [--dry-run]
-  playwright-cli-patched --upgrade [--dry-run]
+  playwright-cli-patched upgrade [options]
+  playwright-cli-patched --upgrade [options]
 
 Options:
-  --dry-run    Print latest versions without changing package files
-  --help       Print this help
+  --dry-run         Print latest versions and upstream merge plan without changing package files
+  --skip-upstream   Skip upstream sync and only upgrade Patchright packages
+  --remote=<name>   Upstream remote name for upstream sync (default: upstream)
+  --branch=<name>   Upstream branch to merge (default: main)
+  --remote-url=<url>  Upstream remote URL if not already configured
+  --allow-dirty     Allow upstream merge while working tree has local changes
+  --help            Print this help
 `);
+}
+
+function upstreamArgv(argv) {
+  const result = [];
+  for (const arg of argv) {
+    if (arg === '--dry-run' || arg === '--allow-dirty' || arg.startsWith('--remote=') || arg.startsWith('--branch=') || arg.startsWith('--remote-url='))
+      result.push(arg);
+  }
+  return result;
 }
 
 module.exports = { runUpgrade };

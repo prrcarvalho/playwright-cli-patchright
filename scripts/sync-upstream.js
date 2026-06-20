@@ -170,4 +170,10 @@ Examples:
   playwright-cli-patched sync-upstream --dry-run`);
 }
 
-module.exports = { runSyncUpstream, validateForkWiring };
+module.exports = {
+  runSyncUpstream,
+  validateForkWiring,
+  DEFAULT_UPSTREAM_REMOTE,
+  DEFAULT_UPSTREAM_URL,
+  DEFAULT_UPSTREAM_BRANCH,
+};

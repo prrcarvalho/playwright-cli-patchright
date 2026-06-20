@@ -12,11 +12,15 @@ Use this for releases of `playwright-cli-patched`, not Microsoft's upstream `@pl
    git checkout -b mark-v<version>
    ```
 
-2. **Optional upstream sync.** If needed, run
+2. **Upstream sync check.** `node playwright-cli.js upgrade` already performs upstream sync by default. Use:
    ```bash
-   node playwright-cli.js sync-upstream
+   node playwright-cli.js upgrade
    ```
-   before rolling Patchright so release includes latest upstream CLI behavior.
+   to refresh both upstream history and Patchright packages, or
+   ```bash
+   node playwright-cli.js upgrade --skip-upstream
+   ```
+   if you only want Patchright package updates.
 
 3. **Roll Patchright.** Follow [roll.md](roll.md) so `patchright` and `patchright-core` are pinned to the intended version and bundled skills/docs match the command surface.
 
