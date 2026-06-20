@@ -77,3 +77,10 @@ test('upgrade command is handled by wrapper', async ({}) => {
     exitCode: 0,
   }));
 });
+
+test('sync-upstream command is handled by wrapper', async ({}) => {
+  expect(await runCli('sync-upstream', '--help')).toEqual(expect.objectContaining({
+    output: expect.stringContaining('playwright-cli-patched sync-upstream'),
+    exitCode: 0,
+  }));
+});

@@ -19,12 +19,17 @@ const fs = require('fs');
 const path = require('path');
 const { program } = require('patchright-core/lib/tools/cli-client/program');
 const { runUpgrade } = require('./scripts/upgrade');
+const { runSyncUpstream } = require('./scripts/sync-upstream');
 const packageJson = require('./package.json');
 
 async function main() {
   const argv = process.argv.slice(2);
   if (isUpgradeCommand(argv)) {
     runUpgrade(argv.filter(arg => arg !== 'upgrade' && arg !== '--upgrade'));
+    return;
+  }
+  if (isSyncUpstreamCommand(argv)) {
+    runSyncUpstream(argv.filter(arg => arg !== 'sync-upstream' && arg !== '--sync-upstream' && arg !== '--upstream-sync'));
     return;
   }
   await program({ embedderVersion: packageJson.version });
@@ -55,6 +60,11 @@ function isInstallCommand(argv) {
 function isUpgradeCommand(argv) {
   const command = argv.find(arg => !arg.startsWith('-'));
   return command === 'upgrade' || (!command && argv.includes('--upgrade'));
+}
+
+function isSyncUpstreamCommand(argv) {
+  const command = argv.find(arg => !arg.startsWith('-'));
+  return command === 'sync-upstream' || command === 'upstream-sync' || (!command && (argv.includes('--sync-upstream') || argv.includes('--upstream-sync')));
 }
 
 function skillsOptionValue(argv) {

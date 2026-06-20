@@ -39,6 +39,23 @@ node playwright-cli.js upgrade
 
 Use `node playwright-cli.js upgrade --dry-run` to print the latest versions without changing package files.
 
+### Syncing Microsoft upstream
+
+Keep this fork close to `microsoft/playwright-cli` while retaining Patchright runtime wiring:
+
+```bash
+# Set upstream once (if not already configured)
+git remote add upstream https://github.com/microsoft/playwright-cli.git
+
+# Pull and merge the latest upstream `main`
+node playwright-cli.js sync-upstream
+
+# Check first without changing your tree
+node playwright-cli.js sync-upstream --dry-run
+```
+
+If your branch has local changes, use `--allow-dirty` or commit/stash first. After a successful merge, run `node scripts/update.js` and `npm test` to refresh skills and verify the CLI still works.
+
 ### Installing skills
 
 Claude Code, GitHub Copilot and others will use the locally installed skills.

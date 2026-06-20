@@ -6,4 +6,5 @@ description: Development workflows for the playwright-cli-patched repository. Us
 # Development skills
 
 * **Rolling Patchright dependency** [roll.md](roll.md)
+* **Syncing upstream Microsoft Playwright CLI** [upstream.md](upstream.md)
 * **Preparing Release** [release.md](release.md)

@@ -33,6 +33,10 @@ npm test
 
 Use `.claude/skills/dev/roll.md` to roll `patchright` and `patchright-core`. Keep `playwright-cli.js` requiring `patchright-core/lib/tools/cli-client/program`.
 
+### Syncing upstream Playwright CLI changes
+
+Use `.claude/skills/dev/upstream.md` to merge upstream `microsoft/playwright-cli` changes while keeping the fork's Patchright runtime.
+
 ## Contributor License Agreement
 
 This fork retains upstream licensing notices. Contributions should preserve the Apache-2.0 license and existing attribution.

@@ -15,7 +15,8 @@
   },
   "license": "Apache-2.0",
   "scripts": {
-    "test": "patchright test"
+    "test": "patchright test",
+    "sync-upstream": "node scripts/sync-upstream.js"
   },
   "devDependencies": {
     "@types/node": "^25.2.1",
