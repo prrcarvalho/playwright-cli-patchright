@@ -1,9 +1,9 @@
 ---
 name: dev
-description: Development workflows for the playwright-cli repository. Use when the user asks about rolling dependencies, releasing, or other repo maintenance tasks.
+description: Development workflows for the playwright-cli-patched repository. Use when the user asks about rolling Patchright, syncing upstream CLI behavior, releasing, or other repo maintenance tasks.
 ---
 
 # Development skills
 
-* **Rolling Playwright dependency** [roll.md](roll.md)
+* **Rolling Patchright dependency** [roll.md](roll.md)
 * **Preparing Release** [release.md](release.md)

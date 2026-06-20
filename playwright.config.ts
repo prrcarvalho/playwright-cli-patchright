@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { defineConfig } from '@playwright/test';
+import { defineConfig } from 'patchright/test';
 
 export default defineConfig({
   testDir: './tests',

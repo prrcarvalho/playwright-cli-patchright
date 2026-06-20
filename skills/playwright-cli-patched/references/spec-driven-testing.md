@@ -1,12 +1,12 @@
 # Spec-driven testing (plan → generate → heal)
 
-End-to-end workflow for authoring and maintaining Playwright tests using `playwright-cli`. The three sections below can be used independently:
+End-to-end workflow for authoring and maintaining Patchright tests using `playwright-cli-patched`. The three sections below can be used independently:
 
 - **Planning** — explore the app, produce a spec file describing what to test.
-- **Generate** — turn a spec into Playwright test files. Update the spec if it's vague or stale.
+- **Generate** — turn a spec into Patchright test files. Update the spec if it's vague or stale.
 - **Heal** — diagnose failing tests, fix the code, reconcile the spec with reality.
 
-All three lean on the same mechanic: run `npx playwright test --debug=cli` in the background, then `playwright-cli attach tw-XXXX` to drive the paused page interactively. See [playwright-tests.md](playwright-tests.md) for the debug/attach mechanics and [test-generation.md](test-generation.md) for how every `playwright-cli` action emits Playwright TypeScript.
+All three lean on the same mechanic: run the linked Patchright test runner with `--debug=cli` in the background, then `playwright-cli-patched attach tw-XXXX` to drive the paused page interactively. See [playwright-tests.md](playwright-tests.md) for the debug/attach mechanics and [test-generation.md](test-generation.md) for how every `playwright-cli-patched` action emits Playwright-compatible TypeScript.
 
 ---
 
@@ -16,18 +16,18 @@ Goal: produce a spec file (e.g. `specs/<feature>.plan.md`) that enumerates the s
 
 ### 1.1 Prerequisite: workspace
 
-Check the workspace has Playwright installed before anything else:
+Check the workspace has Patchright installed before anything else:
 
 ```bash
 # Either of these confirms a workspace:
 test -f playwright.config.ts || test -f playwright.config.js
-npx --no-install playwright --version
+test -x ./node_modules/playwright-cli-patched/node_modules/.bin/patchright
 ```
 
-If there is no Playwright install, bootstrap one and let the user pick the defaults:
+If there is no Patchright install, install this skill's local Patchright-backed CLI package first, then verify `./node_modules/playwright-cli-patched/node_modules/.bin/patchright --version`:
 
 ```bash
-npm init playwright@latest
+npm install -D "file:/Users/pedrocarvalho/projects/browser-automation/playwright-cli-patchright"
 ```
 
 ### 1.2 Prerequisite: seed test
@@ -38,7 +38,7 @@ Minimum viable seed:
 
 ```ts
 // tests/seed.spec.ts
-import { test } from '@playwright/test';
+import { test } from 'patchright/test';
 
 test('seed', async ({ page }) => {
   await page.goto('https://example.com/');
@@ -49,8 +49,8 @@ Preferred — push navigation into a fixture so scenario tests reuse it:
 
 ```ts
 // tests/fixtures.ts
-import { test as baseTest } from '@playwright/test';
-export { expect } from '@playwright/test';
+import { test as baseTest } from 'patchright/test';
+export { expect } from 'patchright/test';
 
 export const test = baseTest.extend({
   page: async ({ page }, use) => {
@@ -76,19 +76,19 @@ If no seed exists, create one that at least navigates to the app.
 Launch the app via the seed in the background and attach:
 
 ```bash
-PLAYWRIGHT_HTML_OPEN=never npx playwright test tests/seed.spec.ts --debug=cli
+PLAYWRIGHT_HTML_OPEN=never ./node_modules/playwright-cli-patched/node_modules/.bin/patchright test tests/seed.spec.ts --debug=cli
 # wait for "Debugging Instructions" and the session name tw-XXXX
-playwright-cli attach tw-XXXX
+playwright-cli-patched attach tw-XXXX
 ```
 
 Resume so the seed runs, then probe the app:
 
 ```bash
-playwright-cli resume                   # resume so that seed test runs fully
-playwright-cli snapshot                 # inventory of interactive elements
-playwright-cli click e5                 # follow a flow
-playwright-cli eval "location.href"     # read URL / state
-playwright-cli show --annotate          # ask the user to point at something
+playwright-cli-patched resume                   # resume so that seed test runs fully
+playwright-cli-patched snapshot                 # inventory of interactive elements
+playwright-cli-patched click e5                 # follow a flow
+playwright-cli-patched eval "location.href"     # read URL / state
+playwright-cli-patched show                     # open dashboard for visual inspection
 ```
 
 Map out:
@@ -99,7 +99,7 @@ Map out:
 - Persistence: reload, local/session storage, URL fragments.
 - Navigation: which controls change the URL, back/forward behaviour.
 
-**Important**: Do not just open the app url with playwright-cli, always go through the test to capture any custom setup done there.
+**Important**: Do not just open the app url with playwright-cli-patched, always go through the test to capture any custom setup done there.
 **Important**: Stop the background test when done exploring.
 
 ### 1.4 Write the spec file
@@ -151,7 +151,7 @@ Guidelines:
 
 ## 2. Generate
 
-Goal: take a spec file and produce Playwright test files. Optionally update the spec if it has drifted.
+Goal: take a spec file and produce Patchright test files. Optionally update the spec if it has drifted.
 
 ### 2.1 Inputs
 
@@ -164,22 +164,22 @@ Goal: take a spec file and produce Playwright test files. Optionally update the 
 For each target scenario, in sequence (never in parallel — scenarios share the seed session):
 
 ```bash
-PLAYWRIGHT_HTML_OPEN=never npx playwright test <seed-file> --debug=cli   # background
-playwright-cli attach tw-XXXX
+PLAYWRIGHT_HTML_OPEN=never ./node_modules/playwright-cli-patched/node_modules/.bin/patchright test <seed-file> --debug=cli   # background
+playwright-cli-patched attach tw-XXXX
 # resume
 ```
 
-**Do not** just open the app url with playwright-cli, always go through the test to capture any custom setup done there.
+**Do not** just open the app url with playwright-cli-patched, always go through the test to capture any custom setup done there.
 
-Walk the scenario's `Steps:` one by one with `playwright-cli`, treating the spec as the plan and the live app as the source of truth. If a step is vague ("click the button" — which button?), references an element that no longer exists, or contradicts the app's actual behaviour, use your judgement: update the spec to match what the app really does, then keep going. Editing the spec mid-generation is expected.
+Walk the scenario's `Steps:` one by one with `playwright-cli-patched`, treating the spec as the plan and the live app as the source of truth. If a step is vague ("click the button" — which button?), references an element that no longer exists, or contradicts the app's actual behaviour, use your judgement: update the spec to match what the app really does, then keep going. Editing the spec mid-generation is expected.
 
-Every action prints the equivalent Playwright TypeScript (see [test-generation.md](test-generation.md)):
+Every action prints the equivalent Playwright-compatible TypeScript (see [test-generation.md](test-generation.md)):
 
 ```bash
-playwright-cli snapshot                         # find refs
-playwright-cli fill e3 "John Doe"               # -> page.getByRole('textbox', {...}).fill(...)
-playwright-cli press Enter
-playwright-cli click e7
+playwright-cli-patched snapshot                         # find refs
+playwright-cli-patched fill e3 "John Doe"               # -> page.getByRole('textbox', {...}).fill(...)
+playwright-cli-patched press Enter
+playwright-cli-patched click e7
 ```
 
 For each `- expect:` bullet, add an explicit assertion. See [test-generation.md](test-generation.md) for details.
@@ -189,7 +189,7 @@ Collect the generated code and write the test file at the path given in the spec
 ```ts
 // spec: specs/basic-operations.plan.md
 // seed: tests/seed.spec.ts
-import { test, expect } from './fixtures';   // or '@playwright/test' if no fixtures file
+import { test, expect } from './fixtures';   // or 'patchright/test' if no fixtures file
 
 test.describe('Singing in and out', () => {
   test('should sign in', async ({ page }) => {
@@ -215,7 +215,7 @@ Rules:
 - **One test per file.** File path, describe name, and test name come verbatim from the spec (minus the ordinal).
 - Prefix each numbered step with a `// N. <step text>` comment before its actions.
 - Use the describe group name verbatim from the spec (no `1.` ordinal).
-- Import from `./fixtures` if the project has one; otherwise `@playwright/test`.
+- Import from `./fixtures` if the project has one; otherwise `patchright/test`.
 - **Important**: close the CLI session and stop the background test before moving to the next scenario.
 
 ### 2.3 Generate multiple scenarios
@@ -227,7 +227,7 @@ Loop 2.2 over the targeted scenarios one at a time, restarting the seed between 
 After generation, run the new tests once:
 
 ```bash
-PLAYWRIGHT_HTML_OPEN=never npx playwright test tests/<group>/<scenario>.spec.ts
+PLAYWRIGHT_HTML_OPEN=never ./node_modules/playwright-cli-patched/node_modules/.bin/patchright test tests/<group>/<scenario>.spec.ts
 ```
 
 Any failure goes to Section 3.
@@ -241,7 +241,7 @@ Goal: fix failing tests, and update the spec if the app's intended behaviour cha
 ### 3.1 Find failing tests
 
 ```bash
-PLAYWRIGHT_HTML_OPEN=never npx playwright test
+PLAYWRIGHT_HTML_OPEN=never ./node_modules/playwright-cli-patched/node_modules/.bin/patchright test
 ```
 
 Record the list of failing `<file>:<line>` entries and process them one at a time. Do not attempt parallel fixes — shared state and the single CLI session make that fragile.
@@ -251,23 +251,23 @@ Record the list of failing `<file>:<line>` entries and process them one at a tim
 Run the single failing test in debug mode in the background, then attach:
 
 ```bash
-PLAYWRIGHT_HTML_OPEN=never npx playwright test tests/<group>/<scenario>.spec.ts:<line> --debug=cli
+PLAYWRIGHT_HTML_OPEN=never ./node_modules/playwright-cli-patched/node_modules/.bin/patchright test tests/<group>/<scenario>.spec.ts:<line> --debug=cli
 # wait for "Debugging Instructions" and the tw-XXXX session name
-playwright-cli attach tw-XXXX
+playwright-cli-patched attach tw-XXXX
 ```
 
 The test is paused at the start. Step forward or run to until just before the failing action or assertion, then diagnose:
 
 ```bash
-playwright-cli snapshot                # did the element change / move / rename?
-playwright-cli console                 # app-side errors?
-playwright-cli network                 # failed request? wrong payload?
-playwright-cli show --annotate         # ask the user to point somewhere
+playwright-cli-patched snapshot                # did the element change / move / rename?
+playwright-cli-patched console                 # app-side errors? (typically empty under Patchright; see references/debugging-patchright.md)
+playwright-cli-patched requests                # failed request? wrong payload?
+playwright-cli-patched show                    # open dashboard for visual inspection
 ```
 
 Common causes: selector drift, new wrapper element, label/ARIA rename, timing (transition, async load), assertion text updated in the app, test data leaking between runs.
 
-Rehearse the corrected interaction with `playwright-cli` — the generated code in the output is what you paste back into the test.
+Rehearse the corrected interaction with `playwright-cli-patched` — the generated code in the output is what you paste back into the test.
 
 ### 3.3 Apply the fix
 
@@ -300,6 +300,6 @@ Only after the user answers, either update the spec (intentional change) or file
 | For... | See |
 |---|---|
 | `--debug=cli` / attach mechanics | [playwright-tests.md](playwright-tests.md) |
-| How `playwright-cli` actions become TS | [test-generation.md](test-generation.md) |
+| How `playwright-cli-patched` actions become TS | [test-generation.md](test-generation.md) |
 | Mocking requests during exploration/generation | [request-mocking.md](request-mocking.md) |
 | Managing the CLI browser session | [session-management.md](session-management.md) |

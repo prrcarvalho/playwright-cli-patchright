@@ -1,46 +1,60 @@
-# How to roll Playwright dependency
+# How to roll Patchright
 
 ## Steps
 
-1. **Obtain latest Playwright version**
-  `npm info playwright@next version`
+1. **Run the automatic upgrade command**:
+   ```bash
+   node playwright-cli.js upgrade
+   ```
 
-2. **Update Playwright packages** in `package.json`:
-   - Update `playwright` (dependency) and `@playwright/test` (devDependency) to the target version.
+   This updates `patchright-core` and `patchright` to npm latest, runs `npm install`, syncs bundled skills, and prints the new command surface.
+
+2. **If you need a manual roll instead, check latest Patchright version**:
+   ```bash
+   npm info patchright version
+   ```
+
+3. **Update Patchright packages** in `package.json`:
+   - Update `patchright-core` (dependency) and `patchright` (devDependency) to the target version.
    - Run `npm install` to update `package-lock.json`.
 
-3. **Run the update script** to sync skills and README:
+4. **Run the update script** to sync the bundled patched skill into the generated skills location:
    ```bash
    node scripts/update.js
    ```
    This script:
-   - Runs `node playwright-cli.js install --skills` to regenerate skills from the new Playwright version.
-   - Copies the generated skills from `.claude/skills/playwright-cli/` into `skills/playwright-cli/`.
-   - Cleans up the generated `.claude/skills/` directory.
+   - Runs `node playwright-cli.js install --skills`.
+   - Copies the generated skill from `.claude/skills/playwright-cli-patched/` into `skills/playwright-cli-patched/`.
+   - Cleans up the generated `.claude/skills/playwright-cli-patched/` directory.
 
-3. **Update README.md** with relevant changes from the updated skill at `skills/playwright-cli/SKILL.md`. Compare the skill file with the README and update any sections that are out of date (commands, flags, default behaviors, examples).
+5. **Check the command surface** against the pinned Patchright runtime:
+   ```bash
+   node -e "const h=require('./node_modules/patchright-core/lib/tools/cli-client/help.json'); console.log(Object.keys(h.commands).sort().join('\n'))"
+   ```
 
-4. **Verify** the CLI works:
+6. **Update README.md and skills** with relevant command changes. Compare the command list with `skills/playwright-cli-patched/SKILL.md` and `README.md`, then update sections that are out of date (commands, flags, default behaviours, examples, Patchright caveats).
+
+7. **Verify** the CLI works:
    ```bash
    node playwright-cli.js --help
    ```
 
-5. **Test** the CLI:
+8. **Test** the CLI:
    ```bash
    npm run test
    ```
 
-5. **Create a branch and commit**:
+9. **Create a branch and commit**:
    - Branch name: `roll_<version>` (e.g. `roll_214`)
-   - Commit message: `chore: roll Playwright to <version>`
+   - Commit message: `chore: roll Patchright to <version>`
    - do not add Co-Authored-By
 
 ## Key files
 
 | File | Role |
 |---|---|
-| `package.json` | Playwright version pins (`playwright`, `@playwright/test`) |
-| `playwright-cli.js` | CLI entry point — requires Playwright's program module |
-| `scripts/update.js` | Automation script for syncing skills and README after version bump |
-| `skills/playwright-cli/SKILL.md` | Skill definition installed from Playwright (source of truth for commands) |
+| `package.json` | Patchright version pins (`patchright-core`, `patchright`) |
+| `playwright-cli.js` | CLI entry point — requires Patchright's program module |
+| `scripts/update.js` | Automation script for syncing the bundled patched skill after version bump |
+| `skills/playwright-cli-patched/SKILL.md` | Skill definition installed from Patchright-backed CLI (source of truth for commands) |
 | `README.md` | User-facing docs — must reflect current skill commands and behavior |

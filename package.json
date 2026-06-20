@@ -1,7 +1,7 @@
 {
-  "name": "@playwright/cli",
+  "name": "playwright-cli-patched",
   "version": "0.1.10",
-  "description": "Playwright CLI",
+  "description": "Patchright-backed Playwright CLI",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/microsoft/playwright-cli.git"
@@ -15,16 +15,16 @@
   },
   "license": "Apache-2.0",
   "scripts": {
-    "test": "playwright test"
+    "test": "patchright test"
   },
   "devDependencies": {
-    "@playwright/test": "1.60.0-alpha-1777575331000",
-    "@types/node": "^25.2.1"
+    "@types/node": "^25.2.1",
+    "patchright": "1.61.0"
   },
   "dependencies": {
-    "playwright": "1.60.0-alpha-1777575331000"
+    "patchright-core": "1.61.0"
   },
   "bin": {
-    "playwright-cli": "playwright-cli.js"
+    "playwright-cli-patched": "playwright-cli.js"
   }
 }

@@ -1,20 +1,22 @@
 # Tracing
 
-Capture detailed execution traces for debugging and analysis. Traces include DOM snapshots, screenshots, network activity, and console logs.
+Capture detailed execution traces for debugging and analysis. Traces include DOM snapshots, screenshots, network activity, and (on upstream Playwright) console logs.
+
+> **Patchright caveat:** the patched CLI disables the CDP Console domain for stealth, so the trace's console column will be empty or near-empty. Everything else (DOM, screenshots, network, action log, timing) is fully populated. If you need console-like visibility inside a trace, combine tracing with the page-side JS logger pattern in [debugging-patchright.md](debugging-patchright.md).
 
 ## Basic Usage
 
 ```bash
 # Start trace recording
-playwright-cli tracing-start
+playwright-cli-patched tracing-start
 
 # Perform actions
-playwright-cli open https://example.com
-playwright-cli click e1
-playwright-cli fill e2 "test"
+playwright-cli-patched open https://example.com
+playwright-cli-patched click e1
+playwright-cli-patched fill e2 "test"
 
 # Stop trace recording
-playwright-cli tracing-stop
+playwright-cli-patched tracing-stop
 ```
 
 ## Trace Output Files
@@ -28,7 +30,7 @@ When you start tracing, Playwright creates a `traces/` directory with several fi
 - DOM snapshots before and after each action
 - Screenshots at each step
 - Timing information
-- Console messages
+- Console messages (empty under Patchright — see caveat above)
 - Source locations
 
 ### `trace-{timestamp}.network`
@@ -56,7 +58,7 @@ When you start tracing, Playwright creates a `traces/` directory with several fi
 | **DOM** | Full DOM snapshot before/after each action |
 | **Screenshots** | Visual state at each step |
 | **Network** | All requests, responses, headers, bodies, timing |
-| **Console** | All console.log, warn, error messages |
+| **Console** | All console.log, warn, error messages (empty under Patchright — Console CDP domain disabled) |
 | **Timing** | Precise timing for each operation |
 
 ## Use Cases
@@ -64,22 +66,22 @@ When you start tracing, Playwright creates a `traces/` directory with several fi
 ### Debugging Failed Actions
 
 ```bash
-playwright-cli tracing-start
-playwright-cli open https://app.example.com
+playwright-cli-patched tracing-start
+playwright-cli-patched open https://app.example.com
 
 # This click fails - why?
-playwright-cli click e5
+playwright-cli-patched click e5
 
-playwright-cli tracing-stop
+playwright-cli-patched tracing-stop
 # Open trace to see DOM state when click was attempted
 ```
 
 ### Analyzing Performance
 
 ```bash
-playwright-cli tracing-start
-playwright-cli open https://slow-site.com
-playwright-cli tracing-stop
+playwright-cli-patched tracing-start
+playwright-cli-patched open https://slow-site.com
+playwright-cli-patched tracing-stop
 
 # View network waterfall to identify slow resources
 ```
@@ -88,15 +90,15 @@ playwright-cli tracing-stop
 
 ```bash
 # Record a complete user flow for documentation
-playwright-cli tracing-start
+playwright-cli-patched tracing-start
 
-playwright-cli open https://app.example.com/checkout
-playwright-cli fill e1 "4111111111111111"
-playwright-cli fill e2 "12/25"
-playwright-cli fill e3 "123"
-playwright-cli click e4
+playwright-cli-patched open https://app.example.com/checkout
+playwright-cli-patched fill e1 "4111111111111111"
+playwright-cli-patched fill e2 "12/25"
+playwright-cli-patched fill e3 "123"
+playwright-cli-patched click e4
 
-playwright-cli tracing-stop
+playwright-cli-patched tracing-stop
 # Trace shows exact sequence of events
 ```
 
@@ -117,10 +119,10 @@ playwright-cli tracing-stop
 
 ```bash
 # Trace the entire flow, not just the failing step
-playwright-cli tracing-start
-playwright-cli open https://example.com
+playwright-cli-patched tracing-start
+playwright-cli-patched open https://example.com
 # ... all steps leading to the issue ...
-playwright-cli tracing-stop
+playwright-cli-patched tracing-stop
 ```
 
 ### 2. Clean Up Old Traces

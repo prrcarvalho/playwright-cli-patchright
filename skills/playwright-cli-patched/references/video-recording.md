@@ -6,25 +6,25 @@ Capture browser automation sessions as video for debugging, documentation, or ve
 
 ```bash
 # Open browser first
-playwright-cli open
+playwright-cli-patched open
 
 # Start recording
-playwright-cli video-start demo.webm
+playwright-cli-patched video-start demo.webm
 
 # Add a chapter marker for section transitions
-playwright-cli video-chapter "Getting Started" --description="Opening the homepage" --duration=2000
+playwright-cli-patched video-chapter "Getting Started" --description="Opening the homepage" --duration=2000
 
 # Navigate and perform actions
-playwright-cli goto https://example.com
-playwright-cli snapshot
-playwright-cli click e1
+playwright-cli-patched goto https://example.com
+playwright-cli-patched snapshot
+playwright-cli-patched click e1
 
 # Add another chapter
-playwright-cli video-chapter "Filling Form" --description="Entering test data" --duration=2000
-playwright-cli fill e2 "test input"
+playwright-cli-patched video-chapter "Filling Form" --description="Entering test data" --duration=2000
+playwright-cli-patched fill e2 "test input"
 
 # Stop and save
-playwright-cli video-stop
+playwright-cli-patched video-stop
 ```
 
 ## Best Practices
@@ -33,8 +33,8 @@ playwright-cli video-stop
 
 ```bash
 # Include context in filename
-playwright-cli video-start recordings/login-flow-2024-01-15.webm
-playwright-cli video-start recordings/checkout-test-run-42.webm
+playwright-cli-patched video-start recordings/login-flow-2024-01-15.webm
+playwright-cli-patched video-start recordings/checkout-test-run-42.webm
 ```
 
 ### 2. Record entire hero scripts.
@@ -44,7 +44,7 @@ It allows pulling appropriate pauses between the actions and annotating the vide
 
 1) Perform scenario using CLI and take note of all locators and actions. You'll need those locators to request their bounding boxes for highlight.
 2) Create a file with the intended script for video (below). Use pressSequentially w/ delay for nice typing, make reasonable pauses.
-3) Use playwright-cli run-code --filename your-script.js
+3) Use playwright-cli-patched run-code --filename your-script.js
 
 **Important**: Overlays are `pointer-events: none` — they do not interfere with page interactions. You can safely keep sticky overlays visible while clicking, filling, or performing any actions on the page.
 
@@ -133,7 +133,7 @@ Embrace creativity, overlays are powerful.
 | Feature | Video | Tracing |
 |---------|-------|---------|
 | Output | WebM file | Trace file (viewable in Trace Viewer) |
-| Shows | Visual recording | DOM snapshots, network, console, actions |
+| Shows | Visual recording | DOM snapshots, network, actions (console column is empty under Patchright — see [debugging-patchright.md](debugging-patchright.md)) |
 | Use case | Demos, documentation | Debugging, analysis |
 | Size | Larger | Smaller |
 

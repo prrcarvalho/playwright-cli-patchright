@@ -1,45 +1,45 @@
 # Test Generation
 
-Generate Playwright test code automatically as you interact with the browser.
+Generate Patchright-compatible test code automatically as you interact with the browser.
 
 ## How It Works
 
-Every action you perform with `playwright-cli` generates corresponding Playwright TypeScript code.
+Every action you perform with `playwright-cli-patched` generates corresponding Playwright-compatible TypeScript code.
 This code appears in the output and can be copied directly into your test files.
 
 ## Example Workflow
 
 ```bash
 # Start a session
-playwright-cli open https://example.com/login
+playwright-cli-patched open https://example.com/login
 
 # Take a snapshot to see elements
-playwright-cli snapshot
+playwright-cli-patched snapshot
 # Output shows: e1 [textbox "Email"], e2 [textbox "Password"], e3 [button "Sign In"]
 
 # Fill form fields - generates code automatically
-playwright-cli fill e1 "user@example.com"
-# Ran Playwright code:
+playwright-cli-patched fill e1 "user@example.com"
+# Ran Playwright-compatible code:
 # await page.getByRole('textbox', { name: 'Email' }).fill('user@example.com');
 
-playwright-cli fill e2 "password123"
-# Ran Playwright code:
+playwright-cli-patched fill e2 "password123"
+# Ran Playwright-compatible code:
 # await page.getByRole('textbox', { name: 'Password' }).fill('password123');
 
-playwright-cli click e3
-# Ran Playwright code:
+playwright-cli-patched click e3
+# Ran Playwright-compatible code:
 # await page.getByRole('button', { name: 'Sign In' }).click();
 ```
 
 ## Building a Test File
 
-Collect the generated code into a Playwright test:
+Collect the generated code into a Patchright test:
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from 'patchright/test';
 
 test('login flow', async ({ page }) => {
-  // Generated code from playwright-cli session:
+  // Generated code from playwright-cli-patched session:
   await page.goto('https://example.com/login');
   await page.getByRole('textbox', { name: 'Email' }).fill('user@example.com');
   await page.getByRole('textbox', { name: 'Password' }).fill('password123');
@@ -69,10 +69,10 @@ await page.locator('#submit-btn').click();
 Take snapshots to understand the page structure before recording actions:
 
 ```bash
-playwright-cli open https://example.com
-playwright-cli snapshot
+playwright-cli-patched open https://example.com
+playwright-cli-patched snapshot
 # Review the element structure
-playwright-cli click e5
+playwright-cli-patched click e5
 ```
 
 ### 3. Add Assertions Manually
@@ -85,27 +85,23 @@ Generated code captures actions but not assertions. Add expectations in your tes
 - `toBeChecked() / toBeUnchecked()` — checkbox state matches
 - `toMatchAriaSnapshot(snapshot)` — page (or locator) matches a partial accessibility snapshot
 
-Use `playwright-cli generate-locator <target>` to produce the locator expression for the assertion, and the snapshot/eval commands to capture the expected value.
+Use the generated code printed after interactions as the locator source for assertions, and the snapshot/eval commands to capture expected values.
 
 When asserting text content, make sure that generated locator does not contain text from the element itself. `getByTestId()` or `getByLabel()` usually work well with asserting text. When locator is text-based, prefer `toBeVisible()` instead.
 
 Snapshot to be matched does not have to contain all the information - only capture what's necessary for the assertion. You can use regular expressions for unstable values.
 
 ```bash
-# Get a stable locator for an element ref to use in the assertion
-playwright-cli --raw generate-locator e5
-# getByRole('button', { name: 'Submit' })
-
 # Capture expected text content for toHaveText
-playwright-cli --raw eval "el => el.textContent" e5
+playwright-cli-patched eval "el => el.textContent" e5
 
 # Capture expected input value for toHaveValue/toBeEmpty
-playwright-cli --raw eval "el => el.value" e5
+playwright-cli-patched eval "el => el.value" e5
 
 # Capture expected aria snapshot for toMatchAriaSnapshot/toBeChecked
 # (whole page, or use a ref to scope to a region)
-playwright-cli --raw snapshot
-playwright-cli --raw snapshot e5
+playwright-cli-patched snapshot
+playwright-cli-patched snapshot e5
 ```
 
 ```typescript

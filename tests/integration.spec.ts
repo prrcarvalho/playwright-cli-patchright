@@ -16,7 +16,7 @@
 
 import path from 'path';
 import { spawn } from 'child_process';
-import { test, expect } from '@playwright/test';
+import { test, expect } from 'patchright/test';
 
 type CliResult = {
   output: string;
@@ -67,6 +67,13 @@ test('open data URL', async ({}) => {
 
   expect(await runCli('delete-data')).toEqual(expect.objectContaining({
     output: expect.stringContaining('Deleted user data for'),
+    exitCode: 0,
+  }));
+});
+
+test('upgrade command is handled by wrapper', async ({}) => {
+  expect(await runCli('upgrade', '--help')).toEqual(expect.objectContaining({
+    output: expect.stringContaining('playwright-cli-patched upgrade'),
     exitCode: 0,
   }));
 });
